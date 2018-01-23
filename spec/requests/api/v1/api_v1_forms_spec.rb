@@ -73,4 +73,51 @@ RSpec.describe "Api::V1::Forms", type: :request do
       end
     end
   end
+
+  describe "POST /forms" do
+ 
+    context "With Invalid authentication headers" do
+      it_behaves_like :deny_without_authorization, :post, "/api/v1/forms"
+    end
+
+    context "With valid authentication headers" do
+      before do
+        @user = create(:user)
+      end
+
+      context "And with valid params" do
+        before do
+          @form_attributes = attributes_for(:form)
+          post "/api/v1/forms", params: {form: @form_attributes}, headers: header_with_authentication(@user)
+        end
+
+        it "returns 200" do
+          expect_status(200)
+        end
+
+        it "form are created with correct data" do
+          @form_attributes.each do |field|
+            expect(Form.first[field.first]).to eql(field.last)
+          end
+        end
+
+        it "Returned data is correct" do
+          @form_attributes.each do |field|
+            expect(json[field.first.to_s]).to eql(field.last)
+          end
+        end        
+      end
+
+      context "And with invalid params" do
+        before do
+          @other_user = create(:user)
+          post "/api/v1/forms", params: {form: {}}, headers: header_with_authentication(@user)
+        end
+ 
+        it "returns 400" do
+          expect_status(400)
+        end
+      end
+    end
+  end
 end
