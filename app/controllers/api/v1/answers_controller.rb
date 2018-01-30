@@ -1,5 +1,5 @@
 class Api::V1::AnswersController < Api::V1::ApiController
-  before_action :authenticate_api_v1_user!, except: [:create]
+  before_action :authenticate_api_v1_user!, only: [:index, :show, :destroy]
   before_action :set_answer, only: [:show, :destroy]
   before_action :set_form
   before_action :allow_only_owner, only: [:index, :show, :destroy]
